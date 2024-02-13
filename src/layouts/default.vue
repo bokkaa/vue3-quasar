@@ -34,7 +34,13 @@
           target="_blank"
         />
         <q-separator class="q-my-md q-mr-md" vertical />
-        <q-btn unelevated rounded color="primary" label="로그인 / 회원가입" />
+        <q-btn
+          unelevated
+          rounded
+          color="primary"
+          label="로그인 / 회원가입"
+          @click="openAuthDialog"
+        />
       </q-toolbar>
     </q-header>
 
@@ -42,11 +48,14 @@
       <router-view />
     </q-page-container>
   </q-layout>
+  <AuthDialog v-model="authDialog" />
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
+
+import AuthDialog from 'src/components/auth/AuthDialog.vue';
 
 const route = useRoute();
 //브레이크 포인트 활용하여 디버그
@@ -57,4 +66,9 @@ const pageContainerStyles = computed(() => ({
   maxWidth: route.meta?.width || '1080px',
   margin: '0 auto',
 }));
+
+const authDialog = ref(false);
+const openAuthDialog = () => {
+  authDialog.value = true;
+};
 </script>
