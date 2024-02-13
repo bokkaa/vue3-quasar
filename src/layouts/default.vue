@@ -58,11 +58,7 @@ import { useRoute } from 'vue-router';
 import AuthDialog from 'src/components/auth/AuthDialog.vue';
 
 const route = useRoute();
-//브레이크 포인트 활용하여 디버그
-// debugger;
-// console.dir(route);
 const pageContainerStyles = computed(() => ({
-  //route.meta에 값이 설정되어있으면 설정되어있는 값으로 아니면 기본값은 1080px
   maxWidth: route.meta?.width || '1080px',
   margin: '0 auto',
 }));
