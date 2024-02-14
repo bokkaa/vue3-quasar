@@ -1,25 +1,42 @@
 <!-- 중첩라우팅 -->
 <!-- mypage.vue가 맨처음 렌더링이 되고 mypage 디렉토리를 찾아가서 그 하위 컴포넌트를 렌더링한다. -->
 <template>
-  <div>
-    <div class="text-h5">MyPage</div>
-  </div>
-  <ul>
-    <li>
-      <router-link to="/mypage/profile">Profile</router-link>
-    </li>
-    <li>
-      <router-link to="/mypage/password">Password</router-link>
-    </li>
-    <li>
-      <router-link to="/mypage/bookmark">Bookmark</router-link>
-    </li>
-  </ul>
-  <router-view />
+  <q-page padding>
+    <div class="row q-col-gutter-lg">
+      <div class="col-4">
+        <BaseCard>
+        <q-list bordered separator>
+          <q-item clickable v-ripple to="/mypage/profile">
+            <q-item-section avatar >
+              <q-icon name="sym_o_account_circle"/>
+            </q-item-section>
+            <q-item-section>프로필</q-item-section>
+          </q-item>
+          <q-item clickable v-ripple to="/mypage/password">
+            <q-item-section avatar >
+              <q-icon name="sym_o_lock"/>
+            </q-item-section>
+            <q-item-section>비밀번호 변경</q-item-section>
+          </q-item>
+          <q-item clickable v-ripple to="/mypage/bookmark">
+            <q-item-section avatar >
+              <q-icon name="sym_o_bookmark"/>
+            </q-item-section>
+            <q-item-section>북마크</q-item-section>
+          </q-item>
+        </q-list>
+      </BaseCard>
+      </div>
+      <div class="col-8">
+        <router-view />
+      </div>
+    </div>
+  </q-page>
 </template>
 
-<script>
-export default {};
+<script setup>
+import BaseCard from 'src/components/base/BaseCard.vue';
+
 </script>
 
 <style lang="scss" scoped>

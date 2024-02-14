@@ -1,6 +1,6 @@
 <template>
   <div class="text-h5 text-center text-weight-bold q-mb-xl">로그인</div>
-  <q-from class="q-gutter-y-md">
+  <q-form class="q-gutter-y-md">
     <q-input placeholder="이메일" outlined dense />
     <q-input placeholder="비밀번호" outlined dense />
     <div>
@@ -33,7 +33,7 @@
       unelevated
       outline
     />
-  </q-from>
+  </q-form>
 </template>
 
 <script setup>

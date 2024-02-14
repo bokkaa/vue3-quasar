@@ -1,6 +1,6 @@
 <template>
   <div class="text-h5 text-center text-weight-bold q-mb-xl">회원가입</div>
-  <q-from class="q-gutter-y-md">
+  <q-form class="q-gutter-y-md">
     <q-input placeholder="닉네임" outlined dense />
     <q-input placeholder="이메일" outlined dense />
     <q-input placeholder="비밀번호(문자, 숫자조합 8자 이상)" outlined dense />
@@ -14,7 +14,7 @@
       flat
       @click="$emit('changeView', 'SignInForm')"
     />
-  </q-from>
+  </q-form>
 </template>
   
   <script setup>

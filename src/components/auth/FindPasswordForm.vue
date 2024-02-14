@@ -1,6 +1,6 @@
 <template>
   <div class="text-h5 text-center text-weight-bold q-mb-xl">비밀번호 찾기</div>
-  <q-from class="q-gutter-y-md">
+  <q-form class="q-gutter-y-md">
     <q-input placeholder="가입한 이메일" outlined dense />
 
     <q-btn label="확인" class="full-width" unelevated color="primary" />
@@ -13,7 +13,7 @@
       flat
       @click="$emit('changeView', 'SignInForm')"
     />
-  </q-from>
+  </q-form>
 </template>
     
 <script setup>

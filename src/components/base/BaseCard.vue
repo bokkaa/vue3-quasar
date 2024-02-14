@@ -5,7 +5,6 @@
         <!-- '_'는 관례상 무시되는 변수 -->
         <template v-for="(_, name) in $slots" :key="name">
             <slot :name="name"></slot>
-
         </template>
     </q-card>
 </template>
