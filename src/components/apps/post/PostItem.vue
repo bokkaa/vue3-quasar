@@ -12,43 +12,33 @@
           {{ category }}
         </q-chip>
       </div>
-      <div class="text-5 qmt-sm">{{ title }}</div>
+      <div class="text-h6 qmt-sm">{{ title }}</div>
       <div class="text-primary text-caption">
         <span v-for="tag in tags" :key="tag" class="q-mr-sm">#{{ tag }}</span>
       </div>
-      <div class="text-grey-6 q-my-sm">{{ contents }}</div>
+      <div class="text-grey-6 q-my-sm ellipsis-2-lines">{{ contents }}</div>
       <div class="row items-center">
         <div class="col-3">
           <div class="flex flex-center">
-            <q-icon name="sym_o_visibility" color="grey" size="xs" />
-            <span class="text-grey q-ml-xs text-body2">{{ readCount }}</span>
-            <q-tooltip :offset="[0, 4]">조회수</q-tooltip>
+            <PostIcon name="sym_o_visibility" :label="readCount" tooltip="조회수"/>
           </div>
         </div>
         <div class="col-3">
           <div class="flex flex-center">
-            <q-icon name="sym_o_sms" color="grey" size="xs" />
-            <span class="text-grey q-ml-xs text-body2">{{ commentCount }}</span>
-            <q-tooltip :offset="[0, 4]">댓글수</q-tooltip>
+            <PostIcon name="sym_o_sms" :label="commentCount" tooltip="댓글수"/>
           </div>
         </div>
         <div class="col-3">
           <div class="flex flex-center">
             <q-btn flat dense class="full-width" @click.prevent>
-              <q-icon name="sym_o_favorite" color="grey" size="xs" />
-              <span class="text-grey q-ml-xs text-body2">{{ likeCount }}</span>
-              <q-tooltip :offset="[0, 4]">좋아요</q-tooltip>
+              <PostIcon name="sym_o_favorite" :label="likeCount" tooltip="좋아요수"/>
             </q-btn>
           </div>
-        </div>
+      </div>
         <div class="col-3">
           <div class="flex flex-center">
             <q-btn flat dense class="full-width" @click.prevent>
-              <q-icon name="sym_o_bookmark" color="grey" size="xs" />
-              <span class="text-grey q-ml-xs text-body2">
-                {{ bookmarkCount }}
-              </span>
-              <q-tooltip :offset="[0, 4]">북마크</q-tooltip>
+              <PostIcon name="sym_o_bookmark" :label="bookmarkCount" tooltip="북마크"/>
             </q-btn>
           </div>
         </div>
@@ -58,6 +48,13 @@
 </template>
 
 <script setup>
+import PostIcon from './PostIcon.vue';
+
+//Composition API에서는 props를 정의할 때 definProps를 사용
+//이 함수는 자동으로 props변수를 바인딩함. 
+//때문에 props에 정의되어있는 변수는 위 template에서 : 를 붙일 필요가 없음
+//위의 경우 label은 defineProps내에서 정의되지 않았기떄문에 :를 붙여야하고
+//tooltip의 경우 props에 정의가 되어있어서 안해도된다.
 defineProps({
   id: {
     type: String,
