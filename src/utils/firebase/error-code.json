@@ -1,0 +1,7 @@
+{
+  "auth/invalid-email": "email 사용자 속성에 제공된 값이 잘못되었습니다. 이 값은 문자열 이메일 주소여야 합니다.",
+  "auth/missing-password": "비밀번호를 입력해주세요",
+  "auth/wrong-password": "잘못된 비밀번호입니다. 구글 계정으로 로그인 시도를 해보세요",
+  "auth/user-not-found": "아이디와 비밀번호를 확인해주세요",
+  "auth/requires-recent-login": "다시 로그인 해주세요"
+}

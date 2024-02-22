@@ -1,54 +1,98 @@
 <template>
-     <BaseCard class="q-pa-lg">
-       <div class="flex q-mb-md"> 
-         <q-btn icon="sym_o_arrow_back" flat round dense color="grey" size="16px"/>
-    
-     <q-space/>
-     <q-btn icon="sym_o_favorite" flat round dense color="red" size="16px"/>
-     <q-btn icon="sym_o_bookmark" flat round dense color="blue" size="16px"/>
-     </div>
-     <div class="items-center flex">
-       <q-avatar>
-         <img src="https://cdn.quasar.dev/img/avatar.png">
-       </q-avatar>
-       <div class="q-ml-md">
-         <div >복어</div>
-         <div class=text-grey-6>3일 전</div>
-       </div>
-       <q-space/>
-         <q-btn icon="more_horiz" round flat>
-           <q-menu>
-             <q-list style="min-width: 100px">
-               <q-item clickable v-close-popup :to="`/posts/${$route.params.id}/edit`">
-                 <q-item-section>수정하기</q-item-section>
-               </q-item>
-               <q-item clickable v-close-popup>
-                 <q-item-section>삭제하기</q-item-section>
-               </q-item>
-             </q-list>
-           </q-menu>
-         </q-btn>
-     </div>
-     <div class="q-mt-md text-h5 text-weight-bold">제목입니다.</div>
-     <div class="row items-center q-gutter-x-md q-mt-md justify-end">
-               <PostIcon name="sym_o_visibility" label="1" tooltip="조회수"/>
-               <PostIcon name="sym_o_sms" label="2" tooltip="댓글수"/>
-               <PostIcon name="sym_o_favorite" label="3" tooltip="좋아요수"/>
-               <PostIcon name="sym_o_bookmark" label="4" tooltip="북마크"/>
-     </div>
+  <BaseCard class="q-pa-lg">
+    <div class="flex q-mb-md">
+      <q-btn
+        icon="sym_o_arrow_back"
+        flat
+        round
+        dense
+        color="grey"
+        size="16px"
+        @click="$router.back()"
+      />
 
-     <q-separator class="q-my-lg"/>
-     <div>
-       Lorem ipsum, dolor sit amet consectetur adipisicing elit.<br> Ea tempora eius sit doloremque esse delectus recusandae nam debitis, id, distinctio in, blanditiis temporibus non necessitatibus. <br>Suscipit neque quisquam aperiam veniam.
-     </div>
-     </BaseCard>
-   </template>
-       
-   <script setup>
-   import PostIcon from 'src/components/apps/post/PostIcon.vue';
-   import BaseCard from 'src/components/base/BaseCard.vue';
+      <q-space />
+      <q-btn icon="sym_o_favorite" flat round dense color="red" size="16px" />
+      <q-btn icon="sym_o_bookmark" flat round dense color="blue" size="16px" />
+    </div>
+    <div class="items-center flex">
+      <q-avatar>
+        <img src="https://cdn.quasar.dev/img/avatar.png" />
+      </q-avatar>
+      <div class="q-ml-md">
+        <div>복어</div>
+        <div class="text-grey-6">
+          {{ date.formatDate(post.createdAt, 'YYYY.MM.DD HH:mm:ss') }}
+        </div>
+      </div>
+      <q-space />
+      <q-btn icon="more_horiz" round flat>
+        <q-menu>
+          <q-list style="min-width: 100px">
+            <q-item
+              clickable
+              v-close-popup
+              :to="`/posts/${$route.params.id}/edit`"
+            >
+              <q-item-section>수정하기</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="handleDeletePost">
+              <q-item-section>삭제하기</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
+    </div>
+    <div class="q-mt-md text-h5 text-weight-bold">{{ post.title }}</div>
+    <div class="text-teal">
+      <span v-for="tag in post.tags" :key="tag"> #{{ tag }}&nbsp; </span>
+      {{ post.category }}
+    </div>
+    <div class="row items-center q-gutter-x-md q-mt-md justify-end">
+      <PostIcon name="sym_o_visibility" :label="post.readCount" />
+      <PostIcon name="sym_o_sms" :label="post.commentCount" />
+      <PostIcon name="sym_o_favorite" :label="post.likeCount" />
+      <PostIcon name="sym_o_bookmark" :label="post.bookmarkCount" />
+    </div>
 
-   </script>
+    <q-separator class="q-my-lg" />
+    <TiptapViewer v-if="post.content" :content="post.content" />
+  </BaseCard>
+</template>
        
-   <style lang="scss" scoped>
-   </style>
+<script setup>
+import PostIcon from 'src/components/apps/post/PostIcon.vue';
+import BaseCard from 'src/components/base/BaseCard.vue';
+import { getPost, deletePost } from 'src/services';
+import { useAsyncState } from '@vueuse/core';
+import { useRoute, useRouter } from 'vue-router';
+import { date, useQuasar } from 'quasar';
+import TiptapViewer from 'src/components/tiptap/TiptapViewer.vue';
+const route = useRoute();
+const router = useRouter();
+const Sq = useQuasar();
+
+const { state: post, error } = useAsyncState(
+  () => getPost(route.params.id),
+  {},
+);
+
+const { execute: executeDeletePost } = useAsyncState(deletePost, null, {
+  immediate: false,
+  onSuccess: () => {
+    Sq.notify('삭제완료');
+    router.push('/');
+  },
+});
+
+const handleDeletePost = async () => {
+  if (confirm('삭제하시겠습니까?') === false) {
+    return;
+  }
+  //글로벌 에러처리를할려면 await을 써줘야함
+  await executeDeletePost(0, route.params.id);
+};
+</script>
+       
+<style lang="scss" scoped>
+</style>

@@ -1,6 +1,6 @@
 <template>
- <!-- 사용할려면 props와 emit이 정의되어있어야함 -->
- <!-- <q-dialog
+  <!-- 사용할려면 props와 emit이 정의되어있어야함 -->
+  <!-- <q-dialog
     :model-value="modelValue"
     @update:model-value="val => $emit('update:modelValue', val)"    
     transition-show="none"
@@ -8,9 +8,8 @@
     @hide="changeViewMode('SignInForm')"
   > -->
 
-
- <!-- 여기도 마찬가지로 fallthroug속성 사용 가능 / props, emit 정의 필요X -->
- <q-dialog
+  <!-- 여기도 마찬가지로 fallthroug속성 사용 가능 / props, emit 정의 필요X -->
+  <q-dialog
     v-bind="$attrs"
     transition-show="none"
     transition-hide="none"
@@ -23,8 +22,9 @@
       </q-card-section>
       <q-card-section class="q-px-xl q-pb-xl">
         <component
+          @close-dialog="closeDialog"
           :is="authViewComponents[viewMode]"
-          @change-view="changeViewMode"  
+          @change-view="changeViewMode"
         />
       </q-card-section>
     </q-card>
@@ -42,6 +42,8 @@ import { defineAsyncComponent, ref } from 'vue';
 // });
 // defineEmits(['update:modelValue']);
 
+const emit = defineEmits(['update:modelValue']);
+
 const viewMode = ref('SignInForm'); // SignInForm, SignUpForm, FindPasswordForm
 const changeViewMode = mode => {
   viewMode.value = mode;
@@ -55,6 +57,10 @@ const authViewComponents = {
   FindPasswordForm: defineAsyncComponent(() =>
     import('./FindPasswordForm.vue'),
   ),
+};
+
+const closeDialog = () => {
+  emit('update:modelValue', false);
 };
 </script>
 

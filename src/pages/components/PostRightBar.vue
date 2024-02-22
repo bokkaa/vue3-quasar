@@ -10,7 +10,9 @@
       <q-avatar class="q-mr-sm" color="white" text-color="primary" size="22px">
         <q-icon name="edit" size="14px" />
       </q-avatar>
-      <span class="text-weight-bold" @click="$emit('openWriteDialog')">새 포스트 작성하기</span>
+      <span class="text-weight-bold" @click="$emit('openWriteDialog')"
+        >새 포스트 작성하기</span
+      >
     </q-btn>
     <q-card class="q-mt-md bg-grey-1 q-pb-none" bordered flat>
       <q-card-section class="flex items-center"
@@ -25,27 +27,31 @@
             dense
             input-style="font-size: 12px"
             placeholder="태그로 검색해보세요"
+            @keypress.enter.prevent="addTag"
           />
           <div class="q-gutter-sm q-pb-sm">
             <q-btn
+              v-for="(tag, index) in tags"
+              :key="tag"
               size="10px"
               padding="2px 4px 2px 7px"
-              color="grey"
+              color="grey-3"
               text-color="dark"
               unelevated
+              @click="removeTag(index)"
             >
-              vue js <q-icon name="clear" size="12px" color="grey"></q-icon>
+              {{ tag }}<q-icon name="clear" size="12px" color="grey" />
             </q-btn>
           </div>
         </q-card>
       </q-card-section>
       <q-list padding>
-        <q-item clickable dense v-for="tag in tags" :key="tag.name">
+        <q-item clickable dense @click="addTag('vuejs')">
           <q-item-section class="text-teal text-caption">
-            #{{ tag.name }}
+            #vuejs
           </q-item-section>
           <q-item-section side class="text-teal text-caption">
-            {{ tag.count }}
+            10
           </q-item-section>
         </q-item>
       </q-list>
@@ -54,34 +60,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, toRef } from 'vue';
+import { useTag } from 'src/composables/useTag';
 import StickySideBar from 'src/components/StickySideBar.vue';
 
+const props = defineProps({
+  tags: {
+    type: Array,
+    default: () => [],
+  },
+});
+const emit = defineEmits(['openWriteDialog', 'update:tags']);
 
-const tags = ref([
-  {
-    name: 'vuejs',
-    count: 10,
-  },
-  {
-    name: 'react',
-    count: 15,
-  },
-  {
-    name: 'angular',
-    count: 12,
-  },
-  {
-    name: 'html',
-    count: 18,
-  },
-  {
-    name: 'css',
-    count: 22,
-  },
-]);
-
-defineEmits(['openWriteDialog'])
+const { addTag, removeTag } = useTag({
+  // toRef props에 있는 tags를 반응형으로 꺼내줭~
+  tags: toRef(props, 'tags'),
+  updateTag: tags => emit('update:tags', tags),
+  maxLengthMessage: '태그 검색은 최대 10까지 가능합니다.',
+});
 </script>
 
 <style lang="scss" scoped>

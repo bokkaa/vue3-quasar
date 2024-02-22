@@ -7,7 +7,11 @@
     </q-item-section>
     <q-item-section>
       <div class="flex items-center">
-        <span>닉네임 &middot; &nbsp;3일 전</span>
+        <span
+          >닉네임 &middot; &nbsp;{{
+            date.formatDate(createdAt, 'YY/MM/DD HH:mm:ss')
+          }}</span
+        >
         <q-chip class="q-ml-sm" dense color="primary" text-color="white">
           {{ category }}
         </q-chip>
@@ -16,29 +20,41 @@
       <div class="text-primary text-caption">
         <span v-for="tag in tags" :key="tag" class="q-mr-sm">#{{ tag }}</span>
       </div>
-      <div class="text-grey-6 q-my-sm ellipsis-2-lines">{{ contents }}</div>
+      <div class="text-grey-6 q-my-sm ellipsis-2-lines">{{ content }}</div>
       <div class="row items-center">
         <div class="col-3">
           <div class="flex flex-center">
-            <PostIcon name="sym_o_visibility" :label="readCount" tooltip="조회수"/>
+            <PostIcon
+              name="sym_o_visibility"
+              :label="readCount"
+              tooltip="조회수"
+            />
           </div>
         </div>
         <div class="col-3">
           <div class="flex flex-center">
-            <PostIcon name="sym_o_sms" :label="commentCount" tooltip="댓글수"/>
+            <PostIcon name="sym_o_sms" :label="commentCount" tooltip="댓글수" />
           </div>
         </div>
         <div class="col-3">
           <div class="flex flex-center">
             <q-btn flat dense class="full-width" @click.prevent>
-              <PostIcon name="sym_o_favorite" :label="likeCount" tooltip="좋아요수"/>
+              <PostIcon
+                name="sym_o_favorite"
+                :label="likeCount"
+                tooltip="좋아요수"
+              />
             </q-btn>
           </div>
-      </div>
+        </div>
         <div class="col-3">
           <div class="flex flex-center">
             <q-btn flat dense class="full-width" @click.prevent>
-              <PostIcon name="sym_o_bookmark" :label="bookmarkCount" tooltip="북마크"/>
+              <PostIcon
+                name="sym_o_bookmark"
+                :label="bookmarkCount"
+                tooltip="북마크"
+              />
             </q-btn>
           </div>
         </div>
@@ -49,9 +65,10 @@
 
 <script setup>
 import PostIcon from './PostIcon.vue';
+import { date } from 'quasar';
 
 //Composition API에서는 props를 정의할 때 definProps를 사용
-//이 함수는 자동으로 props변수를 바인딩함. 
+//이 함수는 자동으로 props변수를 바인딩함.
 //때문에 props에 정의되어있는 변수는 위 template에서 : 를 붙일 필요가 없음
 //위의 경우 label은 defineProps내에서 정의되지 않았기떄문에 :를 붙여야하고
 //tooltip의 경우 props에 정의가 되어있어서 안해도된다.
@@ -62,7 +79,7 @@ defineProps({
   title: {
     type: String,
   },
-  contents: {
+  content: {
     type: String,
   },
   readCount: {
@@ -84,7 +101,7 @@ defineProps({
   category: {
     type: String,
   },
-  createTime: {
+  createdAt: {
     type: Date,
   },
   tags: {

@@ -1,12 +1,23 @@
 <template>
   <q-page padding>
     <div class="row q-col-gutter-x-lg">
-      <PostLeftBar class="col-grow" />
+      <PostLeftBar class="col-grow" v-model:category="params.category" />
       <section class="col-7">
-        <PostHeader />
-        <PostList :items="posts" />
+        <PostHeader v-model:sort="params.sort" />
+        <PostList :items="items" />
+        <q-btn
+          v-if="isLoadMore"
+          class="full-width q-mt-md"
+          label="더보기"
+          outline
+          @click="loadMore"
+        />
       </section>
-      <PostRightBar class="col-3" @open-write-dialog="openWriteDialog" />
+      <PostRightBar
+        class="col-3"
+        @open-write-dialog="openWriteDialog"
+        v-model:tags="params.tags"
+      />
     </div>
 
     <!-- **컴포넌트***에 v-model로 혹은 :model-value, @update:model-value 바인딩하면 해당 컴포넌의 루트 태그에 까지 상속된다. -->
@@ -17,48 +28,79 @@
     <!-- <PostWriteDialog 
     v-model="postDialog"
     /> -->
-    <PostWriteDialog 
-    :model-value="postDialog" 
-    @update:model-value="val => (postDialog = val)"
+    <PostWriteDialog
+      v-model="postDialog"
+      @complete="completeRegistrationPost"
     />
-
   </q-page>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
 import PostList from 'src/components/apps/post/PostList.vue';
 import PostHeader from './components/PostHeader.vue';
 import PostLeftBar from './components/PostLeftBar.vue';
 import PostRightBar from './components/PostRightBar.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import PostWriteDialog from 'src/components/apps/post/PostWriteDialog.vue';
+import { getPosts } from 'src/services';
+import { useAsyncState } from '@vueuse/core';
 
-const router = useRouter();
-const goPostDetails = id => {
-  // router.push(`/posts/${id}`);
-};
+const params = ref({
+  category: null,
+  tags: [],
+  sort: 'createdAt',
+  limit: 1,
+});
+const items = ref([]);
+const start = ref(null);
+const isLoadMore = ref(true);
+// useAsyncState(() => getPosts(params.value) / immeditate:true하거나 밑에 같이하거나
+//위처럼하면 watch를 그대로 사용가능
+const { execute } = useAsyncState(getPosts, [], {
+  immediate: false,
+  throwError: true,
+  // result는 getposts의 반환값
+  onSuccess: result => {
+    if (start.value) {
+      // concat() 배열에 다른 배열이나 값들을 이어붙여서 새로운 배열을 만듦, 원본 배열에 붙이는게아닌 추가될 때마다 새로운 배열을 만듦
+      items.value = items.value.concat(result.items);
+    } else {
+      items.value = result.items;
+    }
+    isLoadMore.value = result.items.length >= params.value.limit;
+    start.value = result.lastItem;
+  },
+});
 
-// 더미데이터
-const posts = Array.from(Array(20), (_, index) => ({
-  id: 'A'+index,
-  title: 'vue3 FireBase 강의' + index,
-  contents:
-    ' Lorem ipsum dolor sit amet consectetur adipisicing elit. At veniam eaqueaspernatur quos explicabo expedita recusandae. Harum, exercitationemimpedit reiciendis, corrupti sequi quisquam magnam, non alias modi in abnatus?',
-  readCount: 1,
-  commentCount: 2,
-  likeCount: 3,
-  bookmarkCount: 4,
-  tags: ['html', 'css', 'javascript'],
-  uid: 'uid',
-  category: '카테고리' + index,
-}));
+watch(
+  params,
+  () => {
+    start.value = null;
+    execute(0, params.value);
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 // 새포스트 작성하기
 const postDialog = ref(false);
 const openWriteDialog = () => {
   postDialog.value = true;
-}
+};
+
+const completeRegistrationPost = () => {
+  postDialog.value = false;
+  execute(0, params.value);
+};
+
+const loadMore = () => {
+  //버튼을 누를때마다 start시작점을 업데이트시킴
+  //즉 마지막문서
+  // params.value값들을 가져오며 start를 params의 하위변수로 넣으면서 start값을 넣는다.
+  execute(0, { ...params.value, start: start.value });
+};
 </script>
 
 <style lang="scss" scoped>
