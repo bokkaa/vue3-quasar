@@ -5,13 +5,18 @@
       <section class="col-7">
         <PostHeader v-model:sort="params.sort" />
         <PostList :items="items" />
-        <q-btn
+        <!-- <q-btn
           v-if="isLoadMore"
           class="full-width q-mt-md"
           label="더보기"
           outline
           @click="loadMore"
-        />
+        /> -->
+        <div
+          class="bg-primary"
+          style="height: 100px"
+          v-intersection-observer="handleIntersectionOberver"
+        ></div>
       </section>
       <PostRightBar
         class="col-3"
@@ -49,7 +54,7 @@ const params = ref({
   category: null,
   tags: [],
   sort: 'createdAt',
-  limit: 1,
+  limit: 6,
 });
 const items = ref([]);
 const start = ref(null);
@@ -93,6 +98,28 @@ const openWriteDialog = () => {
 const completeRegistrationPost = () => {
   postDialog.value = false;
   execute(0, params.value);
+};
+
+// beforMount - 요소가 돔에 삽입되기 직전에 작동되는 메소드
+//vue 디렉티브를 사용할 때 동작에 필요한 매개변수 el, binding
+// el : 디렉티브가 바인딩된 요소
+// binding: 디렉티브의 바인딩 객체
+const vIntersectionObserver = {
+  beforeMount: (el, binding) => {
+    const observer = new IntersectionObserver(binding.value);
+    observer.observe(el);
+  },
+};
+
+//([{ isIntersecting }]) 배열 디스트럭처링 구문
+//콜백함수로 전달되는 엔트리 배열에서 첫 번째 엔트리에 접근할 수 있게 해준다.
+//따라서 첫 번째 엔트리의 inIntersecting 속성을 가져온다.
+const handleIntersectionOberver = ([{ isIntersecting }]) => {
+  if (isIntersecting && isLoadMore.value) {
+    //화면에 보일 때
+    console.log('### handleIntersectionOberver ###');
+    loadMore();
+  }
 };
 
 const loadMore = () => {

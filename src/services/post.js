@@ -115,7 +115,7 @@ export async function getPosts(params) {
   });
   //마지막항목 가져오기
   const lastest = querySnapshot.docs[querySnapshot.docs.length - 1];
-  console.log('last :', lastest._document.data.value.mapValue.fields);
+  // console.log('last :', lastest._document.data.value.mapValue.fields);
   return {
     items: posts,
     lastItem: lastest,
