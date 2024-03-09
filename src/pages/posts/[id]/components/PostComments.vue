@@ -56,7 +56,13 @@ const Sq = useQuasar();
 const authStore = useAuthStore();
 const route = useRoute();
 const isActive = ref(false);
-const toggleActive = () => (isActive.value = !isActive.value);
+const toggleActive = () => {
+  if (!isActive.value && !authStore.isAuthenticated) {
+    alert('로그인이 필요합니다.');
+    return;
+  }
+  isActive.value = !isActive.value;
+};
 
 const { state: comments, execute: executeGetComments } = useAsyncState(
   () => getComments(route.params.id),

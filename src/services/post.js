@@ -16,6 +16,7 @@ import {
   startAfter,
   endAt,
   limit,
+  increment,
 } from 'firebase/firestore';
 
 export async function createPost(data) {
@@ -131,8 +132,25 @@ export async function getPost(postId) {
 
   console.log(data);
   return {
+    id: docSnap.id,
     ...data,
     createdAt: data.createdAt?.toDate(),
+  };
+}
+
+//조회수
+async function incrementReadCount(postId) {
+  await updateDoc(doc(db, 'posts', postId), {
+    readCount: increment(1),
+  });
+}
+
+export async function getPostDetails(id) {
+  await incrementReadCount(id);
+  const post = await getPost(id);
+
+  return {
+    post,
   };
 }
 
@@ -148,4 +166,59 @@ export async function updatePost(postId, data) {
 //게시글 삭제
 export async function deletePost(postId) {
   await deleteDoc(doc(db, 'posts', postId));
+}
+
+/**
+ * 1] 게시글 좋아요
+ * 2] 게시글 좋아요 철회
+ * 3] 게시글 좋아요 조회
+ */
+
+export async function addLike(uid, postId) {
+  await setDoc(doc(db, 'post_likes', `${uid}_${postId}`), {
+    uid,
+    postId,
+    createdAt: serverTimestamp(),
+  });
+}
+
+export async function removeLike(uid, postId) {
+  await deleteDoc(doc(db, 'post_likes', `${uid}_${postId}`));
+}
+
+export async function hasLike(uid, postId) {
+  const docSnap = await getDoc(doc(db, 'post_likes', `${uid}_${postId}`));
+  return docSnap.exists();
+}
+
+//북마크 등록
+export async function addBookmark(uid, postId) {
+  await setDoc(doc(db, 'users', uid, 'bookmark', postId), {
+    createdAt: serverTimestamp(),
+  });
+}
+
+//북마크 삭제
+export async function removeBookmark(uid, postId) {
+  await deleteDoc(doc(db, 'users', uid, 'bookmark', postId));
+}
+
+export async function hasBookmark(uid, postId) {
+  const docSnap = await getDoc(doc(db, 'users', uid, 'bookmark', postId));
+
+  return docSnap.exists();
+}
+
+export async function getUserBookmark(uid) {
+  const q = query(
+    collection(db, 'users', uid, 'bookmark'),
+    orderBy('createdAt', 'desc'),
+    limit(6),
+  );
+  const querySnapshot = await getDocs(q);
+
+  // 프로미스 객체들 배열로 반환 Promise.all()
+  return Promise.all(
+    querySnapshot.docs.map(bookmarkDoc => getPost(bookmarkDoc.id)),
+  );
 }

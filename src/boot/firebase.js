@@ -1,29 +1,30 @@
 import { boot } from 'quasar/wrappers';
-
-import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
+import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useAuthStore } from 'src/stores/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDjFZ-902pHDKJ7Wfqw4p9Zx_aY7dqvJuQ',
-  authDomain: 'bokkaa-vue3-firebase-app.firebaseapp.com',
-  projectId: 'bokkaa-vue3-firebase-app',
-  storageBucket: 'bokkaa-vue3-firebase-app.appspot.com',
-  messagingSenderId: '676218921594',
-  appId: '1:676218921594:web:7e973d9f75abe77003d1c3',
-  measurementId: 'G-MTR2062181',
+  apiKey: 'AIzaSyDdXSbtZ88kvBJeN46WJImaEQBqRnjKBXU',
+  authDomain: 'vue3-firebase-app-79156.firebaseapp.com',
+  projectId: 'vue3-firebase-app-79156',
+  storageBucket: 'vue3-firebase-app-79156.appspot.com',
+  messagingSenderId: '435779038073',
+  appId: '1:435779038073:web:389cd4fb78a8488a829da8',
+  measurementId: 'G-Q7PRWRVCW0',
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
+const analytics = getAnalytics(app);
 
 //외부에서도 사용할거임
-export { auth, db };
+export { auth, db, storage };
 
 export default boot(async (/* { app, router, ... } */) => {
   const authStore = useAuthStore();

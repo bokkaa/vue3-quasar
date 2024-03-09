@@ -1,9 +1,9 @@
 <template>
   <q-page padding>
     <div class="row q-col-gutter-x-lg">
-      <PostLeftBar class="col-grow" v-model:category="params.category" />
+      <PostLeftBar class="col-grow" v-model:category="category" />
       <section class="col-7">
-        <PostHeader v-model:sort="params.sort" />
+        <PostHeader v-model:sort="sort" />
         <PostList :items="items" />
         <!-- <q-btn
           v-if="isLoadMore"
@@ -12,16 +12,12 @@
           outline
           @click="loadMore"
         /> -->
-        <div
-          class="bg-primary"
-          style="height: 100px"
-          v-intersection-observer="handleIntersectionOberver"
-        ></div>
+        <div v-intersection-observer="handleIntersectionOberver"></div>
       </section>
       <PostRightBar
         class="col-3"
         @open-write-dialog="openWriteDialog"
-        v-model:tags="params.tags"
+        v-model:tags="tags"
       />
     </div>
 
@@ -41,21 +37,28 @@
 </template>
 
 <script setup>
+import { computed, ref, watch } from 'vue';
+import { getPosts } from 'src/services';
+import { useAsyncState } from '@vueuse/core';
+import { vIntersectionObserver } from '@vueuse/components';
+import { usePostQuery } from 'src/composables/userPostQuery';
+import { useAuthStore } from 'src/stores/auth';
+
 import PostList from 'src/components/apps/post/PostList.vue';
 import PostHeader from './components/PostHeader.vue';
 import PostLeftBar from './components/PostLeftBar.vue';
 import PostRightBar from './components/PostRightBar.vue';
-import { ref, watch } from 'vue';
 import PostWriteDialog from 'src/components/apps/post/PostWriteDialog.vue';
-import { getPosts } from 'src/services';
-import { useAsyncState } from '@vueuse/core';
 
-const params = ref({
-  category: null,
-  tags: [],
-  sort: 'createdAt',
+const { category, sort, tags } = usePostQuery();
+// category가 변경되면 다시 대입할려면 computed를 사용
+const params = computed(() => ({
+  category: category.value,
+  tags: tags.value,
+  sort: sort.value,
   limit: 6,
-});
+}));
+const authStore = useAuthStore();
 const items = ref([]);
 const start = ref(null);
 const isLoadMore = ref(true);
@@ -85,38 +88,45 @@ watch(
   },
   {
     deep: true,
-    immediate: true,
+    // 중복으로 읽어오는 거 방지하기 위해 주석
+    // immediate: true,
   },
 );
 
 // 새포스트 작성하기
 const postDialog = ref(false);
 const openWriteDialog = () => {
+  if (!authStore.isAuthenticated) {
+    alert('로그인이 필요합니다.');
+    return;
+  }
   postDialog.value = true;
 };
 
 const completeRegistrationPost = () => {
   postDialog.value = false;
+  start.value = null;
   execute(0, params.value);
 };
 
+//** 일반적인 intersetionObserver
 // beforMount - 요소가 돔에 삽입되기 직전에 작동되는 메소드
 //vue 디렉티브를 사용할 때 동작에 필요한 매개변수 el, binding
 // el : 디렉티브가 바인딩된 요소
 // binding: 디렉티브의 바인딩 객체
-const vIntersectionObserver = {
-  beforeMount: (el, binding) => {
-    const observer = new IntersectionObserver(binding.value);
-    observer.observe(el);
-  },
-};
+// const vIntersectionObserver = {
+//   beforeMount: (el, binding) => {
+//     const observer = new IntersectionObserver(binding.value);
+//     observer.observe(el);
+//   },
+// };
 
 //([{ isIntersecting }]) 배열 디스트럭처링 구문
 //콜백함수로 전달되는 엔트리 배열에서 첫 번째 엔트리에 접근할 수 있게 해준다.
 //따라서 첫 번째 엔트리의 inIntersecting 속성을 가져온다.
 const handleIntersectionOberver = ([{ isIntersecting }]) => {
+  //화면에 보일 때
   if (isIntersecting && isLoadMore.value) {
-    //화면에 보일 때
     console.log('### handleIntersectionOberver ###');
     loadMore();
   }

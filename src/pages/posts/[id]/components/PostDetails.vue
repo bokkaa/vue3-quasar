@@ -12,8 +12,24 @@
       />
 
       <q-space />
-      <q-btn icon="sym_o_favorite" flat round dense color="red" size="16px" />
-      <q-btn icon="sym_o_bookmark" flat round dense color="blue" size="16px" />
+      <q-btn
+        :icon="isLike ? 'favorite' : 'sym_o_favorite'"
+        flat
+        round
+        dense
+        color="red"
+        size="16px"
+        @click="toggleLike"
+      />
+      <q-btn
+        :icon="isBookmark ? 'bookmark' : 'sym_o_bookmark'"
+        flat
+        round
+        dense
+        color="blue"
+        size="16px"
+        @click="toggleBookmark"
+      />
     </div>
     <div class="items-center flex">
       <q-avatar>
@@ -26,7 +42,7 @@
         </div>
       </div>
       <q-space />
-      <q-btn icon="more_horiz" round flat>
+      <q-btn icon="more_horiz" round flat v-if="hasOwnContent(post.uid)">
         <q-menu>
           <q-list style="min-width: 100px">
             <q-item
@@ -51,8 +67,8 @@
     <div class="row items-center q-gutter-x-md q-mt-md justify-end">
       <PostIcon name="sym_o_visibility" :label="post.readCount" />
       <PostIcon name="sym_o_sms" :label="post.commentCount" />
-      <PostIcon name="sym_o_favorite" :label="post.likeCount" />
-      <PostIcon name="sym_o_bookmark" :label="post.bookmarkCount" />
+      <PostIcon name="sym_o_favorite" :label="likeCount" />
+      <PostIcon name="sym_o_bookmark" :label="bookmarkCount" />
     </div>
 
     <q-separator class="q-my-lg" />
@@ -61,20 +77,36 @@
 </template>
        
 <script setup>
-import PostIcon from 'src/components/apps/post/PostIcon.vue';
-import BaseCard from 'src/components/base/BaseCard.vue';
-import { getPost, deletePost } from 'src/services';
+import { getPostDetails, deletePost } from 'src/services';
 import { useAsyncState } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 import { date, useQuasar } from 'quasar';
+import { useAuthStore } from 'src/stores/auth';
+import { useLike } from 'src/composables/useLike';
+import { useBookmark } from 'src/composables/useBookmark';
+
+import { ref } from 'vue';
+
+import PostIcon from 'src/components/apps/post/PostIcon.vue';
+import BaseCard from 'src/components/base/BaseCard.vue';
 import TiptapViewer from 'src/components/tiptap/TiptapViewer.vue';
 const route = useRoute();
 const router = useRouter();
 const Sq = useQuasar();
 
-const { state: post, error } = useAsyncState(
-  () => getPost(route.params.id),
+const { hasOwnContent } = useAuthStore();
+
+const post = ref({});
+const { error } = useAsyncState(
+  () => getPostDetails(route.params.id),
   {},
+  {
+    onSuccess: result => {
+      post.value = result.post;
+      updateLikeCount(result.post.likeCount);
+      updateBookmarkCount(result.post.bookmarkCount);
+    },
+  },
 );
 
 const { execute: executeDeletePost } = useAsyncState(deletePost, null, {
@@ -92,6 +124,13 @@ const handleDeletePost = async () => {
   //글로벌 에러처리를할려면 await을 써줘야함
   await executeDeletePost(0, route.params.id);
 };
+
+const { isLike, likeCount, toggleLike, updateLikeCount } = useLike(
+  route.params.id,
+);
+
+const { isBookmark, bookmarkCount, toggleBookmark, updateBookmarkCount } =
+  useBookmark(route.params.id);
 </script>
        
 <style lang="scss" scoped>

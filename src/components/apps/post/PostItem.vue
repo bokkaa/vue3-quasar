@@ -1,5 +1,5 @@
 <template>
-  <q-item class="bg-white q-pt-md" clickable :to="`/posts/${id}`">
+  <q-item class="bg-white q-pt-md" clickable :to="`/posts/${item.id}`">
     <q-item-section avatar top>
       <q-avatar>
         <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="" />
@@ -8,39 +8,45 @@
     <q-item-section>
       <div class="flex items-center">
         <span
-          >닉네임 &middot; &nbsp;{{
-            date.formatDate(createdAt, 'YY/MM/DD HH:mm:ss')
-          }}</span
+          >닉네임 &middot; &nbsp;{{ formatRelativeTime(item.createdAt) }}</span
         >
         <q-chip class="q-ml-sm" dense color="primary" text-color="white">
-          {{ category }}
+          {{ item.category }}
         </q-chip>
       </div>
-      <div class="text-h6 qmt-sm">{{ title }}</div>
+      <div class="text-h6 qmt-sm">{{ item.title }}</div>
       <div class="text-primary text-caption">
-        <span v-for="tag in tags" :key="tag" class="q-mr-sm">#{{ tag }}</span>
+        <span v-for="tag in item.tags" :key="tag" class="q-mr-sm"
+          >#{{ tag }}</span
+        >
       </div>
-      <div class="text-grey-6 q-my-sm ellipsis-2-lines">{{ content }}</div>
+      <div class="text-grey-6 q-my-sm ellipsis-2-lines">
+        {{ item.content }}
+      </div>
       <div class="row items-center">
         <div class="col-3">
           <div class="flex flex-center">
             <PostIcon
               name="sym_o_visibility"
-              :label="readCount"
+              :label="item.readCount"
               tooltip="조회수"
             />
           </div>
         </div>
         <div class="col-3">
           <div class="flex flex-center">
-            <PostIcon name="sym_o_sms" :label="commentCount" tooltip="댓글수" />
+            <PostIcon
+              name="sym_o_sms"
+              :label="item.commentCount"
+              tooltip="댓글수"
+            />
           </div>
         </div>
         <div class="col-3">
           <div class="flex flex-center">
-            <q-btn flat dense class="full-width" @click.prevent>
+            <q-btn flat dense class="full-width" @click.prevent="toggleLike">
               <PostIcon
-                name="sym_o_favorite"
+                :name="isLike ? 'favorite' : 'sym_o_favorite'"
                 :label="likeCount"
                 tooltip="좋아요수"
               />
@@ -49,9 +55,14 @@
         </div>
         <div class="col-3">
           <div class="flex flex-center">
-            <q-btn flat dense class="full-width" @click.prevent>
+            <q-btn
+              flat
+              dense
+              class="full-width"
+              @click.prevent="toggleBookmark"
+            >
               <PostIcon
-                name="sym_o_bookmark"
+                :name="isBookmark ? 'bookmark' : 'sym_o_bookmark'"
                 :label="bookmarkCount"
                 tooltip="북마크"
               />
@@ -65,53 +76,36 @@
 
 <script setup>
 import PostIcon from './PostIcon.vue';
-import { date } from 'quasar';
+import { formatRelativeTime } from 'src/utils/relative-time-format';
+import { useLike } from 'src/composables/useLike';
+import { useBookmark } from 'src/composables/useBookmark';
+import { useAuthStore } from 'src/stores/auth';
+import { storeToRefs } from 'pinia';
 
 //Composition API에서는 props를 정의할 때 definProps를 사용
 //이 함수는 자동으로 props변수를 바인딩함.
 //때문에 props에 정의되어있는 변수는 위 template에서 : 를 붙일 필요가 없음
 //위의 경우 label은 defineProps내에서 정의되지 않았기떄문에 :를 붙여야하고
 //tooltip의 경우 props에 정의가 되어있어서 안해도된다.
-defineProps({
-  id: {
-    type: String,
-  },
-  title: {
-    type: String,
-  },
-  content: {
-    type: String,
-  },
-  readCount: {
-    type: Number,
-    default: 0,
-  },
-  commentCount: {
-    type: Number,
-    default: 0,
-  },
-  likeCount: {
-    type: Number,
-    default: 0,
-  },
-  bookmarkCount: {
-    type: Number,
-    default: 0,
-  },
-  category: {
-    type: String,
-  },
-  createdAt: {
-    type: Date,
-  },
-  tags: {
-    type: Array,
-    default: () => [],
-  },
-  uid: {
-    type: String,
+const props = defineProps({
+  item: {
+    type: Object,
+    default: () => ({}),
   },
 });
+
+const { uid, isAuthenticated } = storeToRefs(useAuthStore());
+
+const { isLike, likeCount, toggleLike } = useLike(props.item.id, {
+  initialCount: props.item.likeCount,
+});
+
+const { isBookmark, bookmarkCount, toggleBookmark } = useBookmark(
+  props.item.id,
+  {
+    initialCount: props.item.bookmarkCount,
+  },
+);
 </script>
 
 <style lang="scss" scoped>

@@ -31,10 +31,18 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  const hasOwnContent = contentUid => {
+    if (!isAuthenticated.value) {
+      return false;
+    }
+    return (uid.value = contentUid);
+  };
+
   return {
     user,
     uid,
     isAuthenticated,
     setUser,
+    hasOwnContent,
   };
 });

@@ -10,7 +10,10 @@ import {
   updatePassword,
   updateProfile,
 } from 'firebase/auth';
+import { doc, updateDoc } from 'firebase/firestore';
 import { auth } from 'src/boot/firebase';
+import { db } from 'src/boot/firebase';
+
 const DEFAULT_PHOTO_URL =
   'https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=';
 
@@ -28,11 +31,12 @@ export async function logout() {
 }
 
 //회원가입
-export async function signUpWithEmail({ email, password, nickname }) {
+export async function signUpWithEmail({ email, password }) {
   const { user } = await createUserWithEmailAndPassword(auth, email, password);
 
   await updateProfile(user, {
-    displayName: nickname,
+    //기본값은 이메일 계정의 @ 앞의 값
+    displayName: email.split('@')[0],
     photoURL: generateDefaultPhotoURL(user.uid),
   });
 
@@ -62,8 +66,16 @@ export async function sendVerificationEmail() {
 
 export async function updateUserProfile(displayName) {
   await updateProfile(auth.currentUser, { displayName: displayName });
+
+  await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+    displayName,
+  });
 }
 
 export async function updateUserEmail(email) {
   await updateEmail(auth.currentUser, email);
+
+  await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+    email,
+  });
 }
