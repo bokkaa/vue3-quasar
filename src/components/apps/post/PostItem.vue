@@ -20,9 +20,11 @@
           >#{{ tag }}</span
         >
       </div>
-      <div class="text-grey-6 q-my-sm ellipsis-2-lines">
-        {{ item.content }}
-      </div>
+      <!-- 하이라이트 -->
+      <div
+        class="text-grey-6 q-my-sm ellipsis-2-lines"
+        v-html="item.content"
+      ></div>
       <div class="row items-center">
         <div class="col-3">
           <div class="flex flex-center">

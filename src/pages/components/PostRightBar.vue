@@ -54,7 +54,7 @@
       </q-card-section>
       <div v-if="isLoading" class="flex flex-center">loading...</div>
       <q-list padding>
-        <!-- 구조분해 할당 (name, count) // 해당 함수의 반환값이 name과 count기 때문에 가능 -->
+        <!-- 구조분해 할당 {name, count} // 해당 함수의 반환값이 name과 count기 때문에 가능 -->
         <q-item
           v-for="{ name, count } in postTags"
           :key="name"

@@ -11,7 +11,7 @@ export async function getUserById(id) {
   if (docSnap.exists()) {
     const data = docSnap.data();
 
-    console.log(data);
+    // console.log(data);
 
     return {
       id,
