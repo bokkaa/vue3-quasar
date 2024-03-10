@@ -5,16 +5,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useAuthStore } from 'src/stores/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-
-const firebaseConfig = {
-  apiKey: 'AIzaSyDdXSbtZ88kvBJeN46WJImaEQBqRnjKBXU',
-  authDomain: 'vue3-firebase-app-79156.firebaseapp.com',
-  projectId: 'vue3-firebase-app-79156',
-  storageBucket: 'vue3-firebase-app-79156.appspot.com',
-  messagingSenderId: '435779038073',
-  appId: '1:435779038073:web:389cd4fb78a8488a829da8',
-  measurementId: 'G-Q7PRWRVCW0',
-};
+import { firebaseConfig } from 'src/firebaseConfig';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
