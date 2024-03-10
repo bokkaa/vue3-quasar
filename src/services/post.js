@@ -149,7 +149,6 @@ async function incrementReadCount(postId) {
 export async function getPostDetails(id) {
   await incrementReadCount(id);
   const post = await getPost(id); //post.uid
-
   const postUser = await getUserById(post.uid);
 
   return {
@@ -225,4 +224,22 @@ export async function getUserBookmark(uid) {
   return Promise.all(
     querySnapshot.docs.map(bookmarkDoc => getPost(bookmarkDoc.id)),
   );
+}
+
+/**
+ * 태그들 가져오기
+ * @returns 태그 이름(name), count
+ */
+export async function getTags() {
+  const q = query(
+    collection(db, 'tags'),
+    where('count', '>', 0),
+    orderBy('count', 'desc'),
+  );
+  const querySnapshot = await getDocs(q);
+
+  console.log(querySnapshot);
+  //쿼리스냅샷에 저장되어있는 데이터들을 반환한다.
+  //조회결과 태그 이름(name)과 count
+  return querySnapshot.docs.map(docu => docu.data());
 }
