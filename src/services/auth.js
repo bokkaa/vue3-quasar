@@ -9,6 +9,7 @@ import {
   updateEmail,
   updatePassword,
   updateProfile,
+  deleteUser,
 } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { auth } from 'src/boot/firebase';
@@ -78,4 +79,15 @@ export async function updateUserEmail(email) {
   await updateDoc(doc(db, 'users', auth.currentUser.uid), {
     email,
   });
+}
+
+//회원탈퇴
+export async function removeUserInfo() {
+  try {
+    const user = auth.currentUser;
+    await user.delete();
+    console.log('탈퇴 성공');
+  } catch (error) {
+    console.error(error);
+  }
 }

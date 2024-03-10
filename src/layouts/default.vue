@@ -70,6 +70,9 @@
               <q-item clickable v-close-popup @click="hadleLogout">
                 <q-item-section>로그아웃</q-item-section>
               </q-item>
+              <q-item clickable v-close-popup @click="handleDeleteUser">
+                <q-item-section>회원탈퇴</q-item-section>
+              </q-item>
             </q-list>
           </q-menu>
         </q-btn>
@@ -93,7 +96,10 @@ import {
   generateDefaultPhotoURL,
   sendVerificationEmail,
 } from 'src/services/index';
+import { removeUserInfo } from 'src/services/index';
 import { useQuasar } from 'quasar';
+import { useAsyncState } from '@vueuse/core';
+import router from 'src/router';
 
 const authStore = useAuthStore();
 const Sq = useQuasar();
@@ -111,6 +117,26 @@ const openAuthDialog = () => {
 const hadleLogout = async () => {
   Sq.notify('로그아웃 되었습니다.');
   await logout();
+};
+
+// 회원탈퇴
+const { execute: executeDeleteUser } = useAsyncState(
+  removeUserInfo,
+  {},
+  {
+    immediate: false,
+    onSuccess: () => {
+      Sq.notify('정상적으로 탈퇴처리 되었습니다.');
+      router.push('/');
+    },
+  },
+);
+
+const handleDeleteUser = async () => {
+  if (confirm('탈퇴하시겠습니까?') == false) {
+    return;
+  }
+  executeDeleteUser(0);
 };
 
 const verifyEmail = async () => {
