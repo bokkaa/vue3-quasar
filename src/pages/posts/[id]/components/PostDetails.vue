@@ -33,10 +33,10 @@
     </div>
     <div class="items-center flex">
       <q-avatar>
-        <img src="https://cdn.quasar.dev/img/avatar.png" />
+        <img :src="postUser?.photoURL" />
       </q-avatar>
       <div class="q-ml-md">
-        <div>복어</div>
+        <div>{{ postUser?.displayName }}</div>
         <div class="text-grey-6">
           {{ date.formatDate(post.createdAt, 'YYYY.MM.DD HH:mm:ss') }}
         </div>
@@ -95,6 +95,7 @@ const router = useRouter();
 const Sq = useQuasar();
 
 const { hasOwnContent } = useAuthStore();
+const postUser = ref({});
 
 const post = ref({});
 const { error } = useAsyncState(
@@ -102,7 +103,11 @@ const { error } = useAsyncState(
   {},
   {
     onSuccess: result => {
+      console.log('post : ', result.post); //게시글 정보
+      console.log('postUser : ', result.postUser); //작성자 정보
+
       post.value = result.post;
+      postUser.value = result.postUser;
       updateLikeCount(result.post.likeCount);
       updateBookmarkCount(result.post.bookmarkCount);
     },

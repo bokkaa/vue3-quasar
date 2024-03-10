@@ -6,6 +6,7 @@ const functions = require('firebase-functions');
 const {
   onDocumentCreated,
   onDocumentDeleted,
+  onDocumentUpdated,
 } = require('firebase-functions/v2/firestore');
 
 // The Firebase Admin SDK to access Firestore.
@@ -16,6 +17,7 @@ const {
   Timestamp,
 } = require('firebase-admin/firestore');
 const serviceAccountKey = require('./serviceAccountKey.json');
+const { increment } = require('firebase/firestore');
 const { logger } = functions;
 
 const app = initializeApp({
@@ -151,3 +153,92 @@ exports.onDeleteUser = functions
 // node js를 사용할때는
 // 가져올때는 require로 한다.
 // 내보낼떄는 exports
+
+//배포과정에서 오류가 발생한경우
+//firebase functions:delete <functionName>
+
+exports.onCreatePost = onDocumentCreated(
+  {
+    region,
+    document: 'posts/{postId}',
+  },
+  event => {
+    const data = event.data.data();
+    //data.tags
+
+    if (data.tags) {
+      updateTags(data.tags);
+    }
+  },
+);
+
+exports.onDeletePost = onDocumentDeleted(
+  {
+    region,
+    document: 'posts/{postId}',
+  },
+  event => {
+    const data = event.data.data();
+    if (data.tags) {
+      updateTags(data.tags, -1);
+    }
+  },
+);
+
+//업데이트 트리거 때는 무한 루프에 빠질 수 있다.
+//무한 루프를 빠져나갈 수 있는 코드를 반드시 작성해야만 한다.
+exports.onUpdatePost = onDocumentUpdated(
+  {
+    region,
+    document: 'posts/{postId}',
+  },
+  event => {
+    //변경 전 데이터
+    const prevData = event.data.before.data(); //ex prevData.tags => vuejs, react, angular
+    //변경 후 데이터
+    const data = event.data.after.data(); //ex data.tags => vuejs, react, java, svelte
+
+    //변경 후 교집합으로 나오는 데이터는 카운트를 무시해도 되지만
+    //변경 후 추가되는 데이터는 +1, 변경 했을 시 사라지는 데이터는 -1
+
+    //변경 후 사라지는 태그들
+    const tagsToRemove = differenceTags(prevData.tags, data.tags);
+
+    //새로 등록될 태그들
+    const tagsToAdd = differenceTags(data.tags, prevData.tags);
+    logger.log('tagsToRemove :', tagsToRemove);
+    logger.log('tagsToAdd :', tagsToAdd);
+
+    if (tagsToRemove) {
+      updateTags(tagsToRemove, -1);
+    }
+    if (tagsToAdd) {
+      updateTags(tagsToAdd);
+    }
+  },
+);
+
+function differenceTags(arr1, arr2) {
+  //arr1 배열 안에 있는 데이터가 value로 하나씩 넘어온다.
+  //즉 arr1 배열 안에 있는 값이 arr2에 담겨져있는지 하나씩 확인
+  //같지 않은 경우를 리턴하므로
+  //예를들어 arr1 = [1, 2, 3, 4], arr2 = [ 3, 4, 5, 6]이면 반환되는 값은 1, 2이다
+  //반대로 arr2를 첫 번째 인자로 넣고 arr1를 두 번째 인자로 넣게되면 반환되는 값은 3,4이다.
+
+  if (!arr1 || !arr2) {
+    //만약에 둘 중 하나라도 비어있다면 첫번째 배열을 리턴
+    return arr1;
+  }
+  return arr1.filter(value => arr2.includes(value) === false);
+}
+
+function updateTags(tags = [], incrementValue = 1) {
+  tags?.forEach(tag => {
+    //무조건 소문자로 등록
+    db.doc(`tags/${tag.toLowerCase()}`).set(
+      { name: tag.toLowerCase(), count: FieldValue.increment(incrementValue) },
+      //태그들의 값이 합쳐지도록 merge : true
+      { merge: true },
+    );
+  });
+}

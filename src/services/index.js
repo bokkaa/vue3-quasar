@@ -3,3 +3,4 @@ export * from './category';
 export * from './post';
 export * from './comments';
 export * from './image';
+export * from './user';

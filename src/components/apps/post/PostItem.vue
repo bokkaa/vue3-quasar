@@ -2,14 +2,14 @@
   <q-item class="bg-white q-pt-md" clickable :to="`/posts/${item.id}`">
     <q-item-section avatar top>
       <q-avatar>
-        <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="" />
+        <img :src="postUser?.photoURL" alt="" />
       </q-avatar>
     </q-item-section>
     <q-item-section>
       <div class="flex items-center">
-        <span
-          >닉네임 &middot; &nbsp;{{ formatRelativeTime(item.createdAt) }}</span
-        >
+        <span>{{ postUser?.displayName }}</span>
+        <span class="q-mx-xs">&middot;</span>
+        <span>{{ formatRelativeTime(item.createdAt) }}</span>
         <q-chip class="q-ml-sm" dense color="primary" text-color="white">
           {{ item.category }}
         </q-chip>
@@ -81,6 +81,8 @@ import { useLike } from 'src/composables/useLike';
 import { useBookmark } from 'src/composables/useBookmark';
 import { useAuthStore } from 'src/stores/auth';
 import { storeToRefs } from 'pinia';
+import { useAsyncState } from '@vueuse/core';
+import { getUserById } from 'src/services';
 
 //Composition API에서는 props를 정의할 때 definProps를 사용
 //이 함수는 자동으로 props변수를 바인딩함.
@@ -105,6 +107,11 @@ const { isBookmark, bookmarkCount, toggleBookmark } = useBookmark(
   {
     initialCount: props.item.bookmarkCount,
   },
+);
+
+const { state: postUser } = useAsyncState(
+  () => getUserById(props.item.uid),
+  {},
 );
 </script>
 

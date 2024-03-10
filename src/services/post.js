@@ -18,6 +18,7 @@ import {
   limit,
   increment,
 } from 'firebase/firestore';
+import { getUserById } from './user';
 
 export async function createPost(data) {
   //컬렉션 레퍼런스(참조) - 컬렉션 위치를 가르켜주는 것
@@ -147,10 +148,13 @@ async function incrementReadCount(postId) {
 
 export async function getPostDetails(id) {
   await incrementReadCount(id);
-  const post = await getPost(id);
+  const post = await getPost(id); //post.uid
+
+  const postUser = await getUserById(post.uid);
 
   return {
     post,
+    postUser,
   };
 }
 
