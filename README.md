@@ -5,7 +5,7 @@
 - 게시판 글 작성(사진 및 해시태그 등록기능) 및 검색 기능을 제공한다.
 
 ## 사이트 바로 가기
--  <a href="https://vue3-firebase-app-79156.web.app/">이동하기 </a>
+-  <a href="https://vue3-firebase-app-79156.firebaseapp.com/">이동하기 </a>
 
 ## 사용 기술
 - Vue3
