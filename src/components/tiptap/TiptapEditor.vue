@@ -3,17 +3,29 @@
     <TiptapEditorMenu :editor="editor" />
     <q-separator />
     <editor-content class="editor__content" :editor="editor" />
+    <div
+      class="character-count flex justify-end text-teal q-pa-sm"
+      v-if="editor"
+    >
+      <!-- 글자수, 단어수 -->
+      <span>
+        {{ editor.storage.characterCount.characters() }}/{{ limit }} characters
+      </span>
+      <span class="q-mx-sm">/</span>
+      <span> {{ editor.storage.characterCount.words() }} words</span>
+    </div>
   </q-card>
 </template>
   
   <script setup>
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
-import { watch } from 'vue';
+import { watch, ref } from 'vue';
 import Placeholder from '@tiptap/extension-placeholder';
 import TiptapEditorMenu from './TiptapEditorMenu.vue';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
+import CharacterCount from '@tiptap/extension-character-count';
 
 const props = defineProps({
   modelValue: {
@@ -23,6 +35,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue']);
+const limit = ref(240);
 const editor = useEditor({
   content: props.modelValue,
   extensions: [
@@ -32,6 +45,9 @@ const editor = useEditor({
     }),
     Link,
     Image,
+    CharacterCount.configure({
+      limit: limit.value,
+    }),
   ],
   onUpdate: () => {
     emit('update:modelValue', editor.value.getHTML());

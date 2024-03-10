@@ -5,9 +5,9 @@ import {
   createWebHistory,
   createWebHashHistory,
 } from 'vue-router/auto';
-// import routes from './routes'
-
 import { setupLayouts } from 'virtual:generated-layouts';
+import { LoadingBar } from 'quasar';
+// import routes from './routes';
 
 export default route(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
@@ -19,10 +19,6 @@ export default route(function (/* { store, ssrContext } */) {
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
     // routes,
-
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
     extendRoutes: routes => {
       return setupLayouts(
@@ -40,6 +36,14 @@ export default route(function (/* { store, ssrContext } */) {
         }),
       );
     },
+  });
+
+  Router.beforeEach(() => {
+    LoadingBar.start();
+  });
+
+  Router.afterEach(() => {
+    LoadingBar.stop();
   });
 
   return Router;

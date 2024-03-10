@@ -1,13 +1,15 @@
 <template>
   <q-item class="bg-white q-pt-md" clickable :to="`/posts/${item.id}`">
     <q-item-section avatar top>
-      <q-avatar>
+      <q-skeleton v-if="isLoadingPostUser" type="circle" />
+      <q-avatar v-else>
         <img :src="postUser?.photoURL" alt="" />
       </q-avatar>
     </q-item-section>
     <q-item-section>
       <div class="flex items-center">
-        <span>{{ postUser?.displayName }}</span>
+        <q-skeleton v-if="isLoadingPostUser" type="rect" width="40px" />
+        <span v-else>{{ postUser?.displayName }}</span>
         <span class="q-mx-xs">&middot;</span>
         <span>{{ formatRelativeTime(item.createdAt) }}</span>
         <q-chip class="q-ml-sm" dense color="primary" text-color="white">
@@ -21,7 +23,11 @@
         >
       </div>
       <!-- 하이라이트 -->
+      <div v-if="escapeHTML" class="text-grey-6 q-my-sm ellipsis-2-lines">
+        {{ item.content }}
+      </div>
       <div
+        v-else
         class="text-grey-6 q-my-sm ellipsis-2-lines"
         v-html="item.content"
       ></div>
@@ -96,6 +102,10 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  escapeHTML: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const { uid, isAuthenticated } = storeToRefs(useAuthStore());
@@ -111,7 +121,7 @@ const { isBookmark, bookmarkCount, toggleBookmark } = useBookmark(
   },
 );
 
-const { state: postUser } = useAsyncState(
+const { state: postUser, isLoading: isLoadingPostUser } = useAsyncState(
   () => getUserById(props.item.uid),
   {},
 );

@@ -7,6 +7,8 @@
         placeholder="제목"
         hide-bottom-space
         :rules="[validateRequired]"
+        counter
+        maxlength="40"
       />
       <!-- value값만 가져오기 -->
       <q-select

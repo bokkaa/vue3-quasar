@@ -1,9 +1,13 @@
 <template>
   <q-list bordered separator>
-    <PostItem v-for="item in items" :key="item.id" :item="item" />
+    <PostItem
+      v-for="item in items"
+      :key="item.id"
+      :item="item"
+      :escapeHTML="escapeHTML"
+    />
   </q-list>
 </template>
-
 <script setup>
 import PostItem from './PostItem.vue';
 
@@ -12,6 +16,10 @@ defineProps({
   items: Array,
   // 기본값 빈 배열
   default: () => [],
+  escapeHTML: {
+    type: Boolean,
+    default: false,
+  },
 });
 </script>
 

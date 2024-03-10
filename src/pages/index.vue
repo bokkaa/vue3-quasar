@@ -4,7 +4,8 @@
       <PostLeftBar class="col-grow" v-model:category="category" />
       <section class="col-7">
         <PostHeader v-model:sort="sort" />
-        <PostList :items="items" />
+        <PostListSkeleton v-if="isLoading" />
+        <PostList :items="items" escapeHTML />
         <!-- <q-btn
           v-if="isLoadMore"
           class="full-width q-mt-md"
@@ -49,6 +50,7 @@ import PostHeader from './components/PostHeader.vue';
 import PostLeftBar from './components/PostLeftBar.vue';
 import PostRightBar from './components/PostRightBar.vue';
 import PostWriteDialog from 'src/components/apps/post/PostWriteDialog.vue';
+import PostListSkeleton from 'src/components/skeletons/PostListSkeleton.vue';
 
 const { category, sort, tags } = usePostQuery();
 // category가 변경되면 다시 대입할려면 computed를 사용
@@ -64,7 +66,7 @@ const start = ref(null);
 const isLoadMore = ref(true);
 // useAsyncState(() => getPosts(params.value) / immeditate:true하거나 밑에 같이하거나
 //위처럼하면 watch를 그대로 사용가능
-const { execute } = useAsyncState(getPosts, [], {
+const { execute, isLoading } = useAsyncState(getPosts, [], {
   immediate: false,
   throwError: true,
   // result는 getposts의 반환값
