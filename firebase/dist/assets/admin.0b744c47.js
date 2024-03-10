@@ -1,1 +1,0 @@
-import{_ as o}from"./plugin-vue_export-helper.21dcd24c.js";import{g as t,o as r,d as s,j as a,c as n}from"./index.c216104a.js";const c={},_=n("div",{class:"text-h2"},"Admin Layout",-1);function d(i,p,m,l,u,f){const e=t("router-view");return r(),s("div",null,[_,a(e)])}var $=o(c,[["render",d]]);export{$ as default};

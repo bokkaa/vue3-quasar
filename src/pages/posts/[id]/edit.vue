@@ -42,11 +42,12 @@ const getInitialForm = () => ({
 import { ref } from 'vue';
 import BaseCard from 'src/components/base/BaseCard.vue';
 import PostForm from 'src/components/apps/post/PostForm.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { getPost, updatePost } from 'src/services';
 import { useAsyncState } from '@vueuse/core';
 import { useQuasar } from 'quasar';
 
+const router = useRouter();
 const route = useRoute();
 const Sq = useQuasar();
 const form = ref(getInitialForm());
@@ -80,6 +81,7 @@ const hadnleSubmit = async () => {
     return;
   }
   await executeUpdatePost(1000, route.params.id, form.value);
+  router.push(`/posts/${route.params.id}`);
 };
 </script>
 

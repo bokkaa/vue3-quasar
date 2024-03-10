@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="text-subtitle1 text-weight-bold q-mb-lg">
-      댓글 6
+      댓글
       <q-form @submit.prevent="handleAddComment">
         <div v-if="isActive">
           <q-input

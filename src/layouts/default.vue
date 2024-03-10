@@ -7,7 +7,7 @@
             <q-avatar>
               <img src="/icons/favicon-16x16.png" />
             </q-avatar>
-            짐코딩 클럽
+            복코딩 클럽
           </q-toolbar-title>
         </q-btn>
         <q-space />
