@@ -2,8 +2,32 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
+     match /{document=**} {
       allow read, write: if true;
+    }
+    
+    function isAuth(){
+    	return request.auth.uid != null;
+    } 
+    
+    //리소스에 있는 uid와 요청에 있는 uid가 있다면 혹은 관리자계정이라면 삭제가능 
+    function isAuthorOrAdmin(authorDataUid){
+    	return authorDataUid == request.auth.uid || isAdmin();
+    }
+    
+    function isAdmin(){
+    	return request.auth.uid != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rule == 'admin';
+    }
+    
+    function allowUpdateFields(fields){
+    return (request.response.data.diff(resource.data).affectedKey().hasOnly(fields));
+    }
+    
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isAuth();
+      allow delete: if isAuthorOrAdmin(resource.data.uid);
+      allow update: if allowUpdateFields(['readCount']) || isAuthorOrAdmin(resource.data.uid);
     }
   }
 }
